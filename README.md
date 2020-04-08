@@ -1,16 +1,14 @@
 LIN Master Node Emulation
 =========================
 
-[My Awesome Wiki](../../wiki)
-
 This library implements a Local Interconnect Master node emulation. For an explanation of the LIN bus and protocol e.g. see https://en.wikipedia.org/wiki/Local_Interconnect_Network.
 
 Supported functionality:
-  - [blocking and non-blocking operation](https://github.com/gicking/LIN_master_Arduino/blob/master/extras/html/md__operation__modes.html)
-  - [multiple, simultaneous LIN nodes](Multiple_LIN.md) with independent baudrates and protocol
+  - [blocking and non-blocking operation](../../wiki/Operation-Modes)
+  - [multiple, simultaneous LIN nodes](../../wiki/Multiple-LIN) with independent baudrates and protocol
   - optional callback functions for slave response frames
   
-This library depends on the *Task Scheduler* library for background operation, which is available via the [Arduino IDE library manager](Library_Manager.md) or directly from https://github.com/kcl93/Tasks
+This library depends on the *Task Scheduler* library for background operation, which is available via the [Arduino IDE library manager](../../wiki/Library_Manager.md) or directly from https://github.com/kcl93/Tasks
 
 Supported Boards (with additional LIN hardware):
   - all boards using the Atmel ATMega328 controller, e.g. Arduino Uno and Nano

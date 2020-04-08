@@ -4,7 +4,7 @@ LIN Master Node Emulation                         {#mainpage}
 This library implements a Local Interconnect Master node emulation. For an explanation of the LIN bus and protocol e.g. see https://en.wikipedia.org/wiki/Local_Interconnect_Network.
 
 Supported functionality:
-  - [blocking and non-blocking operation](Operation_Modes.md)
+  - [blocking and non-blocking operation](https://github.com/gicking/LIN_master_Arduino/blob/master/extras/html/md__operation__modes.html)
   - [multiple, simultaneous LIN nodes](Multiple_LIN.md) with independent baudrates and protocol
   - optional callback functions for slave response frames
   

@@ -1,0 +1,58 @@
+###############################################
+# Syntax coloring Map For LIN Master library
+###############################################
+
+###################################
+# Classes and Datatypes (KEYWORD1)
+###################################
+
+# instances
+LIN_master0	KEYWORD1
+LIN_master1	KEYWORD1
+LIN_master2	KEYWORD1
+LIN_master3	KEYWORD1
+
+
+###################################
+# Methods and Functions (KEYWORD2)
+###################################
+
+# class variables
+baudrate	KEYWORD2
+version	KEYWORD2
+background	KEYWORD2
+state	KEYWORD2
+error	KEYWORD2
+
+
+# class methods
+begin	KEYWORD2
+end	KEYWORD2
+sendMasterRequest	KEYWORD2
+receiveSlaveResponse	KEYWORD2
+receiveFrame	KEYWORD2
+
+
+###################################
+# Constants (LITERAL1)
+###################################
+
+LIN_V1	LITERAL1
+LIN_V2	LITERAL1
+
+LIN_MASTER_REQUEST	LITERAL1
+LIN_SLAVE_RESPONSE	LITERAL1
+
+LIN_SUCCESS	LITERAL1
+LIN_ERROR_STATE	LITERAL1
+LIN_ERROR_ECHO	LITERAL1
+LIN_ERROR_TIMEOUT	LITERAL1
+LIN_ERROR_CHK	LITERAL1
+LIN_ERROR_MISC	LITERAL1
+
+LIN_STATE_OFF	LITERAL1
+LIN_STATE_IDLE	LITERAL1
+LIN_STATE_BREAK	LITERAL1
+LIN_STATE_FRAME	LITERAL1
+
+##################### END #####################

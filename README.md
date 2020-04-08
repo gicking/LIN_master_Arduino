@@ -8,7 +8,7 @@ Supported functionality:
   - [multiple, simultaneous LIN nodes](../../wiki/Multiple-LIN) with independent baudrates and protocol
   - optional callback functions for slave response frames
   
-This library depends on the *Task Scheduler* library for background operation, which is available via the [Arduino IDE library manager](../../wiki/Library-Manager.md) or directly from https://github.com/kcl93/Tasks
+This library depends on the *Task Scheduler* library for background operation, which is available via the [Arduino IDE library manager](../../wiki/Library-Manager) or directly from https://github.com/kcl93/Tasks
 
 Supported Boards (with additional LIN hardware):
   - all boards using the Atmel ATMega328 controller, e.g. Arduino Uno and Nano

@@ -1,6 +1,8 @@
 LIN Master Node Emulation
 =========================
 
+[My Awesome Wiki](../../wiki)
+
 This library implements a Local Interconnect Master node emulation. For an explanation of the LIN bus and protocol e.g. see https://en.wikipedia.org/wiki/Local_Interconnect_Network.
 
 Supported functionality:

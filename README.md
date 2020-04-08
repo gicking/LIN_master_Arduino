@@ -1,4 +1,4 @@
-LIN Master Node Emulation                         {#mainpage}
+LIN Master Node Emulation
 =========================
 
 This library implements a Local Interconnect Master node emulation. For an explanation of the LIN bus and protocol e.g. see https://en.wikipedia.org/wiki/Local_Interconnect_Network.
@@ -17,5 +17,4 @@ Supported Boards (with additional LIN hardware):
   
 As no device specific tricks are used, other boards should also work, if they are supported by the *Task Scheduler* library.
 
-Have fun!\n 
-Georg
+Have fun!, Georg

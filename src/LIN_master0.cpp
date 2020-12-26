@@ -12,6 +12,9 @@
 #include "Arduino.h"
 #include "LIN_master0.h"
 
+// only compile if controller supports Serial
+#if defined(HAVE_HWSERIAL0) || defined(SERIAL_PORT_HARDWARE)
+
 
 /// instance of LIN master via Serial
 LIN_Master_0     LIN_master0;
@@ -82,3 +85,5 @@ void LIN_master0_copy(uint8_t numData, uint8_t *data)
   LIN_master0.defaultCallback(numData, data);
 
 } // LIN_master0_copy
+
+#endif // HAVE_HWSERIAL0 || SERIAL_PORT_HARDWARE

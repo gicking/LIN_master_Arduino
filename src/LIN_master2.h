@@ -14,9 +14,6 @@
 #ifndef _LIN_MASTER2_H_
 #define _LIN_MASTER2_H_
 
-// only compile if controller supports Serial2
-#if defined(HAVE_HWSERIAL2) || defined(SERIAL_PORT_HARDWARE2)
-
 
 /*-----------------------------------------------------------------------------
   INCLUDE FILES
@@ -25,6 +22,10 @@
 // include required libraries
 #include "Arduino.h"
 #include "LIN_master.h"
+
+
+// only compile if controller supports Serial2
+#if defined(HAVE_HWSERIAL2) || defined(SERIAL_PORT_HARDWARE2)
 
 
 /*-----------------------------------------------------------------------------

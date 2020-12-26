@@ -12,6 +12,9 @@
 #include "Arduino.h"
 #include "LIN_master2.h"
 
+// only compile if controller supports Serial2
+#if defined(HAVE_HWSERIAL2) || defined(SERIAL_PORT_HARDWARE2)
+
 
 /// instance of LIN master via Serial2
 LIN_Master_2     LIN_master2;
@@ -82,3 +85,5 @@ void LIN_master2_copy(uint8_t numData, uint8_t *data)
   LIN_master2.defaultCallback(numData, data);
 
 } // LIN_master2_copy
+
+#endif // HAVE_HWSERIAL2 || SERIAL_PORT_HARDWARE2

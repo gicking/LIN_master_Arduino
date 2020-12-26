@@ -12,6 +12,9 @@
 #include "Arduino.h"
 #include "LIN_master3.h"
 
+// only compile if controller supports Serial3
+#if defined(HAVE_HWSERIAL3) || defined(SERIAL_PORT_HARDWARE3)
+
 
 /// instance of LIN master via Serial3
 LIN_Master_3     LIN_master3;
@@ -82,3 +85,5 @@ void LIN_master3_copy(uint8_t numData, uint8_t *data)
   LIN_master3.defaultCallback(numData, data);
 
 } // LIN_master3_copy
+
+#endif // HAVE_HWSERIAL3 || SERIAL_PORT_HARDWARE3

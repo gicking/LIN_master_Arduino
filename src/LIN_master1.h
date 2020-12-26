@@ -14,9 +14,6 @@
 #ifndef _LIN_MASTER1_H_
 #define _LIN_MASTER1_H_
 
-// only compile if controller supports Serial1
-#if defined(HAVE_HWSERIAL1) || defined(SERIAL_PORT_HARDWARE1)
-
 
 /*-----------------------------------------------------------------------------
   INCLUDE FILES
@@ -25,6 +22,10 @@
 // include required libraries
 #include "Arduino.h"
 #include "LIN_master.h"
+
+
+// only compile if controller supports Serial1
+#if defined(HAVE_HWSERIAL1) || defined(SERIAL_PORT_HARDWARE1)
 
 
 /*-----------------------------------------------------------------------------

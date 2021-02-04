@@ -15,6 +15,8 @@ Supported Boards (with additional LIN hardware):
   - all boards using the Atmel ATMega2560 controller, e.g. Arduino Mega
   - all boards using the Atmel SAM3X8E controller, e.g. Arduino Due
   
-As no device specific tricks are used, other boards should also work, if they are supported by the *Task Scheduler* library.
+Notes:
+  - No device specific tricks are used, so all boards supported by the *Task Scheduler* library should work
+  - The sender state machine relies on reading back its 1-wire echo. If no LIN or K-Line transceiver is used, connect Rx&Tx (only 1 device!) 
 
 Have fun!, Georg

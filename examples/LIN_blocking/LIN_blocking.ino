@@ -5,6 +5,10 @@
   \details  Simple emulation of a LIN master node via Serial3 (+ LIN transceiver) for DAI MRA2 FED1.0 with blocking operation. Status is printed periodically.
   \author   Georg Icking-Konert
   \date     2020-03-15
+
+  \note 
+  The sender state machine relies on reading back its 1-wire echo. 
+  If no LIN or K-Line transceiver is used, connect Rx&Tx (only 1 device!) 
 */
 
 // include files                                                                       

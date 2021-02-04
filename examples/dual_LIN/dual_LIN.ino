@@ -5,6 +5,10 @@
   \details  Simple emulation of two LIN master nodes via Serial1 (19.2kBaud) & Serial2 (9.6kBaud). Only master request frames are sent
   \author   Georg Icking-Konert
   \date     2020-03-15
+
+  \note 
+  The sender state machine relies on reading back its 1-wire echo. 
+  If no LIN or K-Line transceiver is used, connect Rx&Tx (only 1 device!) 
 */
 
 // include files

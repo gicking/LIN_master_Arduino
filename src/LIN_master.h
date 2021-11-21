@@ -138,8 +138,6 @@ class LIN_Master
   public:
 
     // public variables
-    bool              flagTxComplete;                                         //!< flag to indicate that data transmission is complete. Must be cleared manually
-    bool              flagRxComplete;                                         //!< flag to indicate that data reception is complete. Must be cleared manually
     LIN_error_t       error;                                                  //!< error state. Is latched until cleared
 
     // public methods
@@ -148,8 +146,9 @@ class LIN_Master
     LIN_error_t       sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *data);     //!< send a master request frame
     LIN_error_t       receiveSlaveResponse(uint8_t id, uint8_t numData, void (*Rx_handler)(uint8_t, uint8_t*));  //!< receive a slave response frame with callback function
     LIN_error_t       receiveSlaveResponse(uint8_t id, uint8_t numData, uint8_t *data);  //!< receive a slave response frame and copy to buffer
+    inline bool       getState(void) { return state; }                        //!< get state of LIN handler machine state. For use see example LIN_background.ino 
 
-    /// LIN master receive handler for task scheduler
+    /// LIN master receive handler for task scheduler. Must be public for task scheduler, but must NOT be used by user program!
     void              handlerSend(void);                                      //!< send handler for task scheduler
     void              handlerReceive(void);                                   //!< send handler for task scheduler
     void              defaultCallback(uint8_t numData, uint8_t *data);        //!< receive callback function to copy data to buffer

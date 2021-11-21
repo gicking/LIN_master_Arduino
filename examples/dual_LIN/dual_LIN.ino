@@ -58,6 +58,10 @@ void loop(void)
 // send master request via Serial1
 void sendMasterRequest1(void)
 {
+  // assert that LIN state is idle
+  if (LIN_master1.getState() != LIN_STATE_IDLE)
+    return;
+  
   // assemble frame data
   static uint8_t  count=0;
   uint8_t         id = 0x05;
@@ -75,6 +79,10 @@ void sendMasterRequest1(void)
 // send master request via Serial2
 void sendMasterRequest2(void)
 {
+  // assert that LIN state is idle
+  if (LIN_master2.getState() != LIN_STATE_IDLE)
+    return;
+  
   // assemble frame data
   static uint8_t  count=127;
   uint8_t         id = 0x11;

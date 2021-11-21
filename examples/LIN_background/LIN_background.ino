@@ -68,6 +68,10 @@ void LIN_scheduler(void)
   uint8_t         numData;
   uint8_t         data[8];
 
+  // assert that LIN bus is idle
+  if (LIN_master3.getState() != LIN_STATE_IDLE)
+    return;
+
   // FED1.0 Daimler MRA2: speed request
   if (count == 0) {
   
@@ -105,39 +109,57 @@ void LIN_scheduler(void)
 // print slave response signals. Periodically called by task scheduler
 void printStatus(void)
 {
-  // print time
-  Serial.print(millis()); Serial.println("ms");
-  
-  // LIN ok -> print received data
-  if (LIN_master3.error == LIN_SUCCESS)
+  // no LIN frame is ongoing -> print data
+  if (LIN_master3.getState() == LIN_STATE_IDLE)
   {
-    for (uint8_t i=0; i<8; i++)
-    {
-      Serial.print(i); Serial.print("\t0x"); Serial.println(Rx[i], HEX);
-    }
-  }
+    uint8_t rx[8];    // local buffer for global Rx data
+
+    // copy data locally. Pause LIN scheduler temporarily for consistency
+    Tasks_Pause();
+    memcpy(rx, Rx, 8);
+    Tasks_Start();
+    
+    // print time
+    Serial.print(millis()); Serial.println("ms");
   
-  // print LIN error status
-  else {
-    Serial.print("LIN error (0x");
-    Serial.print(LIN_master3.error, HEX);
-    Serial.print("): ");
-    if (LIN_master3.error & LIN_ERROR_STATE)
-      Serial.println("statemachine");
-    else if (LIN_master3.error & LIN_ERROR_ECHO)
-      Serial.println("echo");
-    else if (LIN_master3.error & LIN_ERROR_TIMEOUT)
-      Serial.println("timeout");
-    else if (LIN_master3.error & LIN_ERROR_CHK)
-      Serial.println("checksum");
-    else if (LIN_master3.error & LIN_ERROR_MISC)
-      Serial.println("misc");
-  } // error
+    // LIN ok -> print received data
+    if (LIN_master3.error == LIN_SUCCESS)
+    {
+      for (uint8_t i=0; i<8; i++)
+      {
+        Serial.print(i); Serial.print("\t0x"); Serial.println(rx[i], HEX);
+      }
+    }
+  
+    // print LIN error status
+    else {
+      Serial.print("LIN error (0x");
+      Serial.print(LIN_master3.error, HEX);
+      Serial.print("): ");
+      if (LIN_master3.error & LIN_ERROR_STATE)
+        Serial.println("statemachine");
+      else if (LIN_master3.error & LIN_ERROR_ECHO)
+        Serial.println("echo");
+      else if (LIN_master3.error & LIN_ERROR_TIMEOUT)
+        Serial.println("timeout");
+      else if (LIN_master3.error & LIN_ERROR_CHK)
+        Serial.println("checksum");
+      else if (LIN_master3.error & LIN_ERROR_MISC)
+        Serial.println("misc");
+    } // error
 
-  Serial.println();
+    Serial.println();
 
-  // reset latched error and flag for data received
-  LIN_master3.error = LIN_SUCCESS;
-  LIN_master3.flagRxComplete = false;
+    // reset latched error and flag for data received
+    LIN_master3.error = LIN_SUCCESS;
+
+  } // LIN state == idle
+
+
+  // LIN communication ongoing -> re-try in 2ms
+  else
+  {
+    Tasks_Delay(printStatus, 2);
+  }
   
 } // printStatus()

@@ -68,7 +68,6 @@ void loop(void)
   
       // print status and data
       Serial.print(millis()); Serial.println("ms");
-      Serial.print("status: "); Serial.println(LIN_master3.flagRxComplete);
       Serial.print("error: "); Serial.println(LIN_master3.error);
       Serial.println("data:");
       for (uint8_t i=0; i<8; i++)
@@ -79,7 +78,6 @@ void loop(void)
       
       // clear pending error and flag for received data
       LIN_master3.error = LIN_SUCCESS;
-      LIN_master3.flagRxComplete = false;
       
     } // count == 1
 

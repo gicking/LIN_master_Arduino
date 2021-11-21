@@ -531,7 +531,6 @@ void LIN_Master::handlerReceive(void)
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_TIMEOUT);
     state = LIN_STATE_IDLE;
     memset(bufRx, 0, lenRx);
-    flagTxComplete = true;
     return;
   }
 
@@ -566,7 +565,6 @@ void LIN_Master::handlerReceive(void)
       error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_ECHO);
       state = LIN_STATE_IDLE;
       memset(bufRx, 0, lenRx);
-      flagTxComplete = true;
       return;
     } // frame echo mismatch
 
@@ -579,9 +577,6 @@ void LIN_Master::handlerReceive(void)
         LIN_DEBUG_SERIAL.print(serialName);
         LIN_DEBUG_SERIAL.println(".handlerReceive: received frame echo");
       #endif
-
-      // indicate that data transmission is complete
-      flagTxComplete = true;
     }
 
   } // LIN_MASTER_REQUEST
@@ -611,7 +606,6 @@ void LIN_Master::handlerReceive(void)
       error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_ECHO);
       state = LIN_STATE_IDLE;
       memset(bufRx, 0, lenRx);
-      flagRxComplete = true;
       return;
     } // header echo mismatch
 
@@ -636,15 +630,11 @@ void LIN_Master::handlerReceive(void)
       error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_CHK);
       state = LIN_STATE_IDLE;
       memset(bufRx, 0, lenRx);
-      flagRxComplete = true;
       return;
     } // checksum error
 
     // use callback function to handle received data. Only data bytes (- BREAK - SYNC - ID - CHK)
     rx_handler(lenRx-4, bufRx+3);
-
-    // indicate that data reception is complete
-    flagRxComplete = true;
 
   } // LIN_SLAVE_RESPONSE
 

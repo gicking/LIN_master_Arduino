@@ -31,6 +31,7 @@ end	KEYWORD2
 sendMasterRequest	KEYWORD2
 receiveSlaveResponse	KEYWORD2
 receiveFrame	KEYWORD2
+getState	KEYWORD2
 
 
 ###################################

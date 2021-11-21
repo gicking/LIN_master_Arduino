@@ -119,6 +119,10 @@ void LIN_scheduler(void)
   uint8_t         numData;
   uint8_t         data[8];
 
+  // assert that LIN state is idle
+  if (LIN_master3.getState() != LIN_STATE_IDLE)
+    return;
+  
   // debug
   //count = 0;
   
@@ -189,45 +193,56 @@ void statusDecode(uint8_t numData, uint8_t *data)
 // print slave response signals. Periodically called by task scheduler
 void printStatus(void)
 {
-  // LIN ok -> print some slave data
-  if (LIN_master3.error == LIN_SUCCESS)
+  // no LIN frame is ongoing -> print data
+  if (LIN_master3.getState() == LIN_STATE_IDLE)
   {
-    Serial.print("set speed: "); Serial.print(CoolFan_RPM_Ack*25);      Serial.println("rpm");
-    Serial.print("act speed: "); Serial.print(CoolFan_RPM_Avg*25);      Serial.println("rpm");
-    Serial.print("voltage:   "); Serial.print(CoolFan_Voltage_Avg*0.2); Serial.println("V");
-    Serial.print("voltage:   "); Serial.print(CoolFan_Current_Avg);     Serial.println("A");
-    Serial.print("voltage:   "); Serial.print((int)CoolFan_cur_Temp-0); Serial.println("C");
-    Serial.print("blocking:  "); Serial.print((int)CoolFan_Blocking_Stat-0); Serial.println();
-    Serial.println();
+    // LIN ok -> print some slave data
+    if (LIN_master3.error == LIN_SUCCESS)
+    {
+      Serial.print("set speed: "); Serial.print(CoolFan_RPM_Ack*25);      Serial.println("rpm");
+      Serial.print("act speed: "); Serial.print(CoolFan_RPM_Avg*25);      Serial.println("rpm");
+      Serial.print("voltage:   "); Serial.print(CoolFan_Voltage_Avg*0.2); Serial.println("V");
+      Serial.print("voltage:   "); Serial.print(CoolFan_Current_Avg);     Serial.println("A");
+      Serial.print("voltage:   "); Serial.print((int)CoolFan_cur_Temp-0); Serial.println("C");
+      Serial.print("blocking:  "); Serial.print((int)CoolFan_Blocking_Stat-0); Serial.println();
+      Serial.println();
+    }
+    
+    // print LIN error status
+    else {
+      Serial.print("LIN error (0x");
+      Serial.print(LIN_master3.error, HEX);
+      Serial.print("): ");
+  
+      if (LIN_master3.error & LIN_ERROR_STATE)
+        Serial.print("statemachine ");
+      
+      if (LIN_master3.error & LIN_ERROR_ECHO)
+        Serial.print("echo ");
+      
+      if (LIN_master3.error & LIN_ERROR_TIMEOUT)
+        Serial.print("timeout ");
+      
+      if (LIN_master3.error & LIN_ERROR_CHK)
+        Serial.print("checksum ");
+      
+      if (LIN_master3.error & LIN_ERROR_MISC)
+        Serial.print("misc ");
+  
+      Serial.println();
+  
+    } // error
+  
+    // reset latched error and flag for data received
+    LIN_master3.error = LIN_SUCCESS;
+
+  } // LIN state == idle
+
+
+  // LIN communication ongoing -> re-try in 2ms
+  else
+  {
+    Tasks_Delay(printStatus, 2);
   }
-  
-  // print LIN error status
-  else {
-    Serial.print("LIN error (0x");
-    Serial.print(LIN_master3.error, HEX);
-    Serial.print("): ");
-
-    if (LIN_master3.error & LIN_ERROR_STATE)
-      Serial.print("statemachine ");
     
-    if (LIN_master3.error & LIN_ERROR_ECHO)
-      Serial.print("echo ");
-    
-    if (LIN_master3.error & LIN_ERROR_TIMEOUT)
-      Serial.print("timeout ");
-    
-    if (LIN_master3.error & LIN_ERROR_CHK)
-      Serial.print("checksum ");
-    
-    if (LIN_master3.error & LIN_ERROR_MISC)
-      Serial.print("misc ");
-
-    Serial.println();
-
-  } // error
-
-  // reset latched error and flag for data received
-  LIN_master3.error = LIN_SUCCESS;
-  LIN_master3.flagRxComplete = false;
-  
 } // printStatus()

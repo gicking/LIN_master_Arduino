@@ -4,8 +4,6 @@
   \details  This library provides the base class for a master node emulation of a LIN bus.
             For an explanation of the LIN bus and protocol e.g. see https://en.wikipedia.org/wiki/Local_Interconnect_Network
   \author   Georg Icking-Konert
-  \date     2020-03-14
-  \version  0.1
 */
 
 // include files
@@ -159,7 +157,7 @@ LIN_error_t LIN_Master::sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_STATE);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return LIN_ERROR_STATE;
   }
 
@@ -217,6 +215,9 @@ LIN_error_t LIN_Master::sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *
   {
     // attach send handler for frame body
     Tasks_Add((Task) wrapperSend, 0, durationBreak);
+	
+    // return success here. Errors are stored in class variable
+    return LIN_SUCCESS;
 
   } // background operation
 
@@ -234,8 +235,14 @@ LIN_error_t LIN_Master::sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *
 
     // call receive handler manually
     wrapperReceive();
+	
+	// return error state
+	return error;
 
   } // blocking operation
+	
+  // avoid compiler warning
+  return LIN_SUCCESS;
 
 } // LIN_Master::sendMasterRequest
 
@@ -266,7 +273,7 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_STATE);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return LIN_ERROR_STATE;
   }
 
@@ -325,6 +332,9 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
   {
     // attach send handler for frame body
     Tasks_Add((Task) wrapperSend, 0, durationBreak);
+	
+	// return success here. Errors are stored in class variable
+	return LIN_SUCCESS;
 
   } // background operation
 
@@ -343,8 +353,14 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
 
     // call receive handler manually
     wrapperReceive();
+	
+	// return error state
+	return error;
 
   } // blocking operation
+	
+  // avoid compiler warning
+  return LIN_SUCCESS;
 
 } // LIN_Master::receiveSlaveResponse (callback)
 
@@ -361,11 +377,16 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
 */
 LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, uint8_t *data)
 {
+  LIN_error_t err;
+  
   // store array pointer for default callback function
   dataPtr = data;
 
   // call receive function with callback for actual transmission
-  receiveSlaveResponse(id, numData, wrapperDefaultCallback);
+  err = receiveSlaveResponse(id, numData, wrapperDefaultCallback);
+
+  // return error code
+  return err;
 
 } // LIN_Master::receiveSlaveResponse (copy data)
 
@@ -391,7 +412,7 @@ void LIN_Master::handlerSend(void)
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_STATE);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return;
   }
 
@@ -413,7 +434,7 @@ void LIN_Master::handlerSend(void)
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_TIMEOUT);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return;
   }
 
@@ -432,7 +453,7 @@ void LIN_Master::handlerSend(void)
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_ECHO);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return;
   }
 
@@ -496,7 +517,7 @@ void LIN_Master::handlerReceive(void)
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_STATE);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return;
   }
 
@@ -530,7 +551,7 @@ void LIN_Master::handlerReceive(void)
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_TIMEOUT);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return;
   }
 
@@ -564,7 +585,7 @@ void LIN_Master::handlerReceive(void)
       #endif
       error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_ECHO);
       state = LIN_STATE_IDLE;
-      memset(bufRx, 0, lenRx);
+      memset(bufRx, 0, 12);
       return;
     } // frame echo mismatch
 
@@ -605,7 +626,7 @@ void LIN_Master::handlerReceive(void)
       #endif
       error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_ECHO);
       state = LIN_STATE_IDLE;
-      memset(bufRx, 0, lenRx);
+      memset(bufRx, 0, 12);
       return;
     } // header echo mismatch
 
@@ -629,7 +650,7 @@ void LIN_Master::handlerReceive(void)
       #endif
       error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_CHK);
       state = LIN_STATE_IDLE;
-      memset(bufRx, 0, lenRx);
+      memset(bufRx, 0, 12);
       return;
     } // checksum error
 

@@ -4,8 +4,6 @@
   \details  This library provides the base class for a master node emulation of a LIN bus.
             For an explanation of the LIN bus and protocol e.g. see https://en.wikipedia.org/wiki/Local_Interconnect_Network
   \author   Georg Icking-Konert
-  \date     2020-03-14
-  \version  0.1
 */
 
 /*-----------------------------------------------------------------------------
@@ -86,7 +84,7 @@ typedef enum {
 
 
 /**
-    \brief typedef for data decoder to hadle received data
+    \brief typedef for data decoder to handle received data
 */
 typedef void (*decoder_t)(uint8_t,uint8_t*);
 

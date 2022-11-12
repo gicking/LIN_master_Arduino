@@ -140,11 +140,11 @@ class LIN_Master
 
     // public methods
     void              begin(uint16_t Baudrate, LIN_version_t Version, bool Background);  //!< setup UART and LIN framework
-    void              end(void);                                              //!< end UART communication    void              end(void);                                                         //!< end UART communication
+    void              end(void);                                              //!< end UART communication
     LIN_error_t       sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *data);     //!< send a master request frame
     LIN_error_t       receiveSlaveResponse(uint8_t id, uint8_t numData, void (*Rx_handler)(uint8_t, uint8_t*));  //!< receive a slave response frame with callback function
     LIN_error_t       receiveSlaveResponse(uint8_t id, uint8_t numData, uint8_t *data);  //!< receive a slave response frame and copy to buffer
-    inline bool       getState(void) { return state; }                        //!< get state of LIN handler machine state. For use see example LIN_background.ino 
+    inline LIN_status_t  getState(void) { return state; }                     //!< get state of LIN handler machine state. For use see example LIN_background.ino 
 
     /// LIN master receive handler for task scheduler. Must be public for task scheduler, but must NOT be used by user program!
     void              handlerSend(void);                                      //!< send handler for task scheduler

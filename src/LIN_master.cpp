@@ -217,6 +217,9 @@ LIN_error_t LIN_Master::sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *
   {
     // attach send handler for frame body
     Tasks_Add((Task) wrapperSend, 0, durationBreak);
+	
+	// return success here. Errors are stored in class variable
+	return LIN_SUCCESS;
 
   } // background operation
 
@@ -234,8 +237,14 @@ LIN_error_t LIN_Master::sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *
 
     // call receive handler manually
     wrapperReceive();
+	
+	// return error state
+	return error;
 
   } // blocking operation
+	
+  // avoid compiler warning
+  return LIN_SUCCESS;
 
 } // LIN_Master::sendMasterRequest
 
@@ -325,6 +334,9 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
   {
     // attach send handler for frame body
     Tasks_Add((Task) wrapperSend, 0, durationBreak);
+	
+	// return success here. Errors are stored in class variable
+	return LIN_SUCCESS;
 
   } // background operation
 
@@ -343,8 +355,14 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
 
     // call receive handler manually
     wrapperReceive();
+	
+	// return error state
+	return error;
 
   } // blocking operation
+	
+  // avoid compiler warning
+  return LIN_SUCCESS;
 
 } // LIN_Master::receiveSlaveResponse (callback)
 
@@ -361,11 +379,16 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
 */
 LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, uint8_t *data)
 {
+  LIN_error_t err;
+  
   // store array pointer for default callback function
   dataPtr = data;
 
   // call receive function with callback for actual transmission
-  receiveSlaveResponse(id, numData, wrapperDefaultCallback);
+  err = receiveSlaveResponse(id, numData, wrapperDefaultCallback);
+
+  // return error code
+  return err;
 
 } // LIN_Master::receiveSlaveResponse (copy data)
 

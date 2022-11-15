@@ -10,6 +10,13 @@
 #include "Arduino.h"
 #include "LIN_master.h"
 
+// create task scheduler instance for LIN 
+#if defined(ESP32) || defined(ESP8266)
+  Ticker LIN_ticker;
+#endif
+
+
+
 
 /**
   \brief      Setup library for LIN communication.
@@ -214,8 +221,12 @@ LIN_error_t LIN_Master::sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *
   if (background)
   {
     // attach send handler for frame body
-    Tasks_Add((Task) wrapperSend, 0, durationBreak);
-	
+    #if defined(__AVR__) || defined(__SAM3X8E__)
+      Tasks_Add((Task) wrapperSend, 0, durationBreak);
+    #elif defined(ESP32) || defined(ESP8266)
+      LIN_ticker.once_ms(durationBreak, wrapperSend);
+    #endif
+
     // return success here. Errors are stored in class variable
     return LIN_SUCCESS;
 
@@ -331,7 +342,11 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
   if (background)
   {
     // attach send handler for frame body
-    Tasks_Add((Task) wrapperSend, 0, durationBreak);
+    #if defined(__AVR__) || defined(__SAM3X8E__)
+      Tasks_Add((Task) wrapperSend, 0, durationBreak);
+    #elif defined(ESP32) || defined(ESP8266)
+      LIN_ticker.once_ms(durationBreak, wrapperSend);
+    #endif
 	
 	// return success here. Errors are stored in class variable
 	return LIN_SUCCESS;
@@ -484,9 +499,13 @@ void LIN_Master::handlerSend(void)
 
   // background operation
   if (background)
-  {
+  { 
     // attach receive handler for reading frame echo or header echo + slave response
-    Tasks_Add((Task) wrapperReceive, 0, durationFrame);
+    #if defined(__AVR__) || defined(__SAM3X8E__)
+      Tasks_Add((Task) wrapperReceive, 0, durationFrame);
+    #elif defined(ESP32) || defined(ESP8266)
+      LIN_ticker.once_ms(durationFrame, wrapperReceive);
+    #endif
 
   } // background operation
 

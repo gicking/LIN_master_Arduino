@@ -11,7 +11,7 @@
 #include "LIN_master3.h"
 
 // only compile if controller supports Serial3
-#if defined(HAVE_HWSERIAL3) || defined(SERIAL_PORT_HARDWARE3)
+#if defined(HAVE_HWSERIAL3) || defined(SERIAL_PORT_HARDWARE3) || (SOC_UART_NUM > 3)
 
 
 /// instance of LIN master via Serial3

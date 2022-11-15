@@ -23,7 +23,7 @@
 
 
 // only compile if controller supports Serial3
-#if defined(HAVE_HWSERIAL3) || defined(SERIAL_PORT_HARDWARE3)
+#if defined(HAVE_HWSERIAL3) || defined(SERIAL_PORT_HARDWARE3) || (SOC_UART_NUM > 3)
 
 
 /*-----------------------------------------------------------------------------

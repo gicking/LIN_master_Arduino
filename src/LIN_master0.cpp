@@ -11,7 +11,7 @@
 #include "LIN_master0.h"
 
 // only compile if controller supports Serial
-#if defined(HAVE_HWSERIAL0) || defined(SERIAL_PORT_HARDWARE)
+#if defined(HAVE_HWSERIAL0) || defined(SERIAL_PORT_HARDWARE) || (SOC_UART_NUM > 0)
 
 
 /// instance of LIN master via Serial

@@ -25,16 +25,14 @@
   INCLUDE FILES
 -----------------------------------------------------------------------------*/
 
-// Check library dependencies
-#if defined(__AVR__) //the __has_include() macro only kind of works at least with the Arduino MEGA
-    #if !__has_include("../../Task_Scheduler/src/Tasks.h")
-        #error This LIN library requires the "Task Scheduler" library by Kai Liebich & Georg Icking-Konert. Please install it via the Arduino library manager!
-    #endif
-#endif
-
-// include required libs
 #include "Arduino.h"
-#include "Tasks.h"
+#if defined(__AVR__) || defined(__SAM3X8E__)
+  #include "Tasks.h"
+#elif defined(ESP32) || defined(ESP8266)
+  #include "Ticker.h"
+#else
+  #error no supported task library found. Install either "Task Scheduler" library (AVR, SAM), or Ticker (ESP32, ESP8266)
+#endif
 
 
 /*-----------------------------------------------------------------------------
@@ -45,8 +43,8 @@
     \brief LIN version of checksum
 */
 typedef enum {
-    LIN_V1            = 1,          //!< LIN protocol version 1
-    LIN_V2            = 2           //!< LIN protocol version 2
+  LIN_V1            = 1,          //!< LIN protocol version 1
+  LIN_V2            = 2           //!< LIN protocol version 2
 } LIN_version_t;
 
 
@@ -54,8 +52,8 @@ typedef enum {
     \brief LIN frame type
 */
 typedef enum {
-    LIN_MASTER_REQUEST = 1,         //!< LIN protocol version 1
-    LIN_SLAVE_RESPONSE = 2          //!< LIN protocol version 2
+  LIN_MASTER_REQUEST = 1,         //!< LIN protocol version 1
+  LIN_SLAVE_RESPONSE = 2          //!< LIN protocol version 2
 } LIN_frame_t;
 
 
@@ -63,12 +61,12 @@ typedef enum {
     \brief LIN communication error codes
 */
 typedef enum {
-    LIN_SUCCESS       = 0x00,       //!< no error
-    LIN_ERROR_STATE   = 0x01,       //!< error in LIN state machine
-    LIN_ERROR_ECHO    = 0x02,       //!< error reading LIN echo
-    LIN_ERROR_TIMEOUT = 0x04,       //!< LIN receive timeout
-    LIN_ERROR_CHK     = 0x08,       //!< LIN checksum error
-    LIN_ERROR_MISC    = 0x80        //!< misc error, should not occur
+  LIN_SUCCESS       = 0x00,       //!< no error
+  LIN_ERROR_STATE   = 0x01,       //!< error in LIN state machine
+  LIN_ERROR_ECHO    = 0x02,       //!< error reading LIN echo
+  LIN_ERROR_TIMEOUT = 0x04,       //!< LIN receive timeout
+  LIN_ERROR_CHK     = 0x08,       //!< LIN checksum error
+  LIN_ERROR_MISC    = 0x80        //!< misc error, should not occur
 } LIN_error_t;
 
 
@@ -76,10 +74,10 @@ typedef enum {
     \brief state of LIN master state machine
 */
 typedef enum {
-    LIN_STATE_OFF     = 0,          //!< LIN instance inactive
-    LIN_STATE_IDLE    = 1,          //!< no LIN transmission ongoing
-    LIN_STATE_BREAK   = 2,          //!< break is being transmitted
-    LIN_STATE_FRAME   = 3,          //!< frame is being transmitted
+  LIN_STATE_OFF     = 0,          //!< LIN instance inactive
+  LIN_STATE_IDLE    = 1,          //!< no LIN transmission ongoing
+  LIN_STATE_BREAK   = 2,          //!< break is being transmitted
+  LIN_STATE_FRAME   = 3,          //!< frame is being transmitted
 } LIN_status_t;
 
 

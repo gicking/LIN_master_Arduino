@@ -2,18 +2,28 @@
   \file     LIN_callback.ino
   \example  LIN_callback.ino
   \brief    Single LIN master node emulation for FED1.0 DAI MRA2.
-  \details  Emulation of a LIN master node via Serial3 (+ LIN transceiver) with callback function for DAI MRA2 FED1.0. Speed can be controlled and status is printed.
+  \details  Emulation of a LIN master node via Serial1 (+ LIN transceiver) with callback function for DAI MRA2 FED1.0. Speed can be controlled and status is printed.
   \author   Georg Icking-Konert
-  \date     2020-03-15
 
   \note 
   The sender state machine relies on reading back its 1-wire echo. 
   If no LIN or K-Line transceiver is used, connect Rx&Tx (only 1 device!) 
 */
 
-// include files
-#include "LIN_master3.h"      // muDuino LIN via Serial3
-#include "Tasks.h"
+// LIN master library
+#include "LIN_master1.h"
+
+// task scheduler library. Either "Task Scheduler" library (AVR, SAM), or Ticker (ESP32, ESP8266)
+#if defined(__AVR__) || defined(__SAM3X8E__)
+  #include "Tasks.h"
+#elif defined(ESP32) || defined(ESP8266)
+  #include "Ticker.h" 
+  Ticker  ticker_LIN;
+  Ticker  ticker_Print;
+#else
+  #error no supported task library found. Install either "Task Scheduler" library (AVR, SAM), or Ticker (ESP32, ESP8266)
+#endif
+
 
 // task scheduler periods [ms]
 #define PRINT_PERIOD  1000    // period for status output
@@ -60,13 +70,18 @@ void setup(void)
   Serial.begin(115200); while(!Serial);
   
   // initialize LIN master (background operation)
-  LIN_master3.begin(19200, LIN_V2, true);
+  LIN_master1.begin(19200, LIN_V2, true);
   
   // init task scheduler (also required for LIN master emulation!)
-  Tasks_Init();
-  Tasks_Add((Task) LIN_scheduler, LIN_PERIOD, 0);
-  Tasks_Add((Task) printStatus, PRINT_PERIOD, PRINT_PERIOD);
-  Tasks_Start();
+  #if defined(__AVR__) || defined(__SAM3X8E__)
+    Tasks_Init();
+    Tasks_Add((Task) LIN_scheduler, LIN_PERIOD, 0);
+    Tasks_Add((Task) printStatus, PRINT_PERIOD, PRINT_PERIOD);
+    Tasks_Start();
+  #else // ESP32 / ESP8266
+    ticker_LIN.attach_ms(LIN_PERIOD, LIN_scheduler);
+    ticker_Print.attach_ms(PRINT_PERIOD, printStatus);
+  #endif
 
 } // setup()
 
@@ -120,7 +135,7 @@ void LIN_scheduler(void)
   uint8_t         data[8];
 
   // assert that LIN state is idle
-  if (LIN_master3.getState() != LIN_STATE_IDLE)
+  if (LIN_master1.getState() != LIN_STATE_IDLE)
     return;
   
   // debug
@@ -136,7 +151,7 @@ void LIN_scheduler(void)
     data[0] = CoolFan_RPM & 0x7f;   // set speed from global variable. Clear bit 7 ("Notlaufuntredrueckung")
 
     // send master request
-    LIN_master3.sendMasterRequest(id, numData, data);
+    LIN_master1.sendMasterRequest(id, numData, data);
 
     // advance to next message
     count++;
@@ -150,7 +165,7 @@ void LIN_scheduler(void)
     numData = 8;
 
     // get slave status & decode data
-    LIN_master3.receiveSlaveResponse(id, numData, statusDecode);
+    LIN_master1.receiveSlaveResponse(id, numData, statusDecode);
 
     // restart LIN scheduler
     count=0;
@@ -194,10 +209,10 @@ void statusDecode(uint8_t numData, uint8_t *data)
 void printStatus(void)
 {
   // no LIN frame is ongoing -> print data
-  if (LIN_master3.getState() == LIN_STATE_IDLE)
+  if (LIN_master1.getState() == LIN_STATE_IDLE)
   {
     // LIN ok -> print some slave data
-    if (LIN_master3.error == LIN_SUCCESS)
+    if (LIN_master1.error == LIN_SUCCESS)
     {
       Serial.print("set speed: "); Serial.print(CoolFan_RPM_Ack*25);      Serial.println("rpm");
       Serial.print("act speed: "); Serial.print(CoolFan_RPM_Avg*25);      Serial.println("rpm");
@@ -211,22 +226,22 @@ void printStatus(void)
     // print LIN error status
     else {
       Serial.print("LIN error (0x");
-      Serial.print(LIN_master3.error, HEX);
+      Serial.print(LIN_master1.error, HEX);
       Serial.print("): ");
   
-      if (LIN_master3.error & LIN_ERROR_STATE)
+      if (LIN_master1.error & LIN_ERROR_STATE)
         Serial.print("statemachine ");
       
-      if (LIN_master3.error & LIN_ERROR_ECHO)
+      if (LIN_master1.error & LIN_ERROR_ECHO)
         Serial.print("echo ");
       
-      if (LIN_master3.error & LIN_ERROR_TIMEOUT)
+      if (LIN_master1.error & LIN_ERROR_TIMEOUT)
         Serial.print("timeout ");
       
-      if (LIN_master3.error & LIN_ERROR_CHK)
+      if (LIN_master1.error & LIN_ERROR_CHK)
         Serial.print("checksum ");
       
-      if (LIN_master3.error & LIN_ERROR_MISC)
+      if (LIN_master1.error & LIN_ERROR_MISC)
         Serial.print("misc ");
   
       Serial.println();
@@ -234,7 +249,7 @@ void printStatus(void)
     } // error
   
     // reset latched error and flag for data received
-    LIN_master3.error = LIN_SUCCESS;
+    LIN_master1.error = LIN_SUCCESS;
 
   } // LIN state == idle
 
@@ -242,7 +257,14 @@ void printStatus(void)
   // LIN communication ongoing -> re-try in 2ms
   else
   {
-    Tasks_Delay(printStatus, 2);
+    #if defined(__AVR__) || defined(__SAM3X8E__)
+      Tasks_Delay(printStatus, 2);
+    #else // ESP32 / ESP8266
+      ticker_Print.detach();
+      delay(2);
+      printStatus();
+      ticker_Print.attach_ms(PRINT_PERIOD, printStatus);
+    #endif
   }
     
 } // printStatus()

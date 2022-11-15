@@ -23,7 +23,7 @@
 
 
 // only compile if controller supports Serial2
-#if defined(HAVE_HWSERIAL2) || defined(SERIAL_PORT_HARDWARE2)
+#if defined(HAVE_HWSERIAL2) || defined(SERIAL_PORT_HARDWARE2) || (SOC_UART_NUM > 2)
 
 
 /*-----------------------------------------------------------------------------

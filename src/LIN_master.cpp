@@ -4,13 +4,18 @@
   \details  This library provides the base class for a master node emulation of a LIN bus.
             For an explanation of the LIN bus and protocol e.g. see https://en.wikipedia.org/wiki/Local_Interconnect_Network
   \author   Georg Icking-Konert
-  \date     2020-03-14
-  \version  0.1
 */
 
 // include files
 #include "Arduino.h"
 #include "LIN_master.h"
+
+// create task scheduler instance for LIN 
+#if defined(ESP32) || defined(ESP8266)
+  Ticker LIN_ticker;
+#endif
+
+
 
 
 /**
@@ -159,7 +164,7 @@ LIN_error_t LIN_Master::sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_STATE);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return LIN_ERROR_STATE;
   }
 
@@ -201,6 +206,8 @@ LIN_error_t LIN_Master::sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *
   // set half baudrate for LIN break
   #if defined(__AVR__)
     *UCSRA &= ~(1<<U2X0);                              // on AVR clear "double baudrate"
+  #elif defined(ESP32)
+    pSerial->updateBaudRate(baudrate/2);               // on ESP32 use updateBaudRate() because begin() takes ~10ms
   #else
     pSerial->begin(baudrate/2); while(!(*pSerial));    // else use built-in function
   #endif
@@ -216,10 +223,14 @@ LIN_error_t LIN_Master::sendMasterRequest(uint8_t id, uint8_t numData, uint8_t *
   if (background)
   {
     // attach send handler for frame body
-    Tasks_Add((Task) wrapperSend, 0, durationBreak);
-	
-	// return success here. Errors are stored in class variable
-	return LIN_SUCCESS;
+    #if defined(__AVR__) || defined(__SAM3X8E__)
+      Tasks_Add((Task) wrapperSend, 0, durationBreak);
+    #elif defined(ESP32) || defined(ESP8266)
+      LIN_ticker.once_ms(durationBreak, wrapperSend);
+    #endif
+
+    // return success here. Errors are stored in class variable
+    return LIN_SUCCESS;
 
   } // background operation
 
@@ -275,7 +286,7 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_STATE);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return LIN_ERROR_STATE;
   }
 
@@ -315,6 +326,8 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
   // set half baudrate for LIN break
   #if defined(__AVR__)
     *UCSRA &= ~(1<<U2X0);                              // on AVR clear "double baudrate"
+  #elif defined(ESP32)
+    pSerial->updateBaudRate(baudrate/2);               // on ESP32 use updateBaudRate() because begin() takes ~10ms
   #else
     pSerial->begin(baudrate/2); while(!(*pSerial));    // else use built-in function
   #endif
@@ -333,7 +346,11 @@ LIN_error_t LIN_Master::receiveSlaveResponse(uint8_t id, uint8_t numData, void (
   if (background)
   {
     // attach send handler for frame body
-    Tasks_Add((Task) wrapperSend, 0, durationBreak);
+    #if defined(__AVR__) || defined(__SAM3X8E__)
+      Tasks_Add((Task) wrapperSend, 0, durationBreak);
+    #elif defined(ESP32) || defined(ESP8266)
+      LIN_ticker.once_ms(durationBreak, wrapperSend);
+    #endif
 	
 	// return success here. Errors are stored in class variable
 	return LIN_SUCCESS;
@@ -414,14 +431,14 @@ void LIN_Master::handlerSend(void)
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_STATE);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return;
   }
 
 
   // wait until break received (with timeout) before changing baudrate
   uint32_t tStart = micros();
-  while ((!(pSerial->available())) && ((micros() - tStart) < 500));
+  while ((!(pSerial->available())) && ((micros() - tStart) < 5000));
 
 
   // assert no timeout
@@ -436,7 +453,7 @@ void LIN_Master::handlerSend(void)
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_TIMEOUT);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return;
   }
 
@@ -455,7 +472,7 @@ void LIN_Master::handlerSend(void)
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_ECHO);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return;
   }
 
@@ -474,6 +491,8 @@ void LIN_Master::handlerSend(void)
   // restore original baudrate after BREAK
   #if defined(__AVR__)
     *UCSRA |= (1<<U2X0);                               // on AVR restore "double baudrate"
+  #elif defined(ESP32)
+    pSerial->updateBaudRate(baudrate);                 // on ESP32 use updateBaudRate() because begin() takes ~10ms
   #else
     pSerial->begin(baudrate); while(!(*pSerial));      // else use built-in function
   #endif
@@ -486,9 +505,13 @@ void LIN_Master::handlerSend(void)
 
   // background operation
   if (background)
-  {
+  { 
     // attach receive handler for reading frame echo or header echo + slave response
-    Tasks_Add((Task) wrapperReceive, 0, durationFrame);
+    #if defined(__AVR__) || defined(__SAM3X8E__)
+      Tasks_Add((Task) wrapperReceive, 0, durationFrame);
+    #elif defined(ESP32) || defined(ESP8266)
+      LIN_ticker.once_ms(durationFrame, wrapperReceive);
+    #endif
 
   } // background operation
 
@@ -519,14 +542,14 @@ void LIN_Master::handlerReceive(void)
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_STATE);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return;
   }
 
 
   // wait until break received (with timeout) before changing baudrate
   uint32_t tStart = micros();
-  while ((pSerial->available() != lenRx-1) && ((micros() - tStart) < 500));
+  while ((pSerial->available() != lenRx-1) && ((micros() - tStart) < 5000));
 
 
   // check if data was received (-1 because sync break already read)
@@ -553,7 +576,7 @@ void LIN_Master::handlerReceive(void)
     #endif
     error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_TIMEOUT);
     state = LIN_STATE_IDLE;
-    memset(bufRx, 0, lenRx);
+    memset(bufRx, 0, 12);
     return;
   }
 
@@ -587,7 +610,7 @@ void LIN_Master::handlerReceive(void)
       #endif
       error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_ECHO);
       state = LIN_STATE_IDLE;
-      memset(bufRx, 0, lenRx);
+      memset(bufRx, 0, 12);
       return;
     } // frame echo mismatch
 
@@ -628,7 +651,7 @@ void LIN_Master::handlerReceive(void)
       #endif
       error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_ECHO);
       state = LIN_STATE_IDLE;
-      memset(bufRx, 0, lenRx);
+      memset(bufRx, 0, 12);
       return;
     } // header echo mismatch
 
@@ -652,7 +675,7 @@ void LIN_Master::handlerReceive(void)
       #endif
       error = (LIN_error_t)((uint8_t) error | (uint8_t) LIN_ERROR_CHK);
       state = LIN_STATE_IDLE;
-      memset(bufRx, 0, lenRx);
+      memset(bufRx, 0, 12);
       return;
     } // checksum error
 

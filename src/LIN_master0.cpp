@@ -4,8 +4,6 @@
   \details  This library provides a master node emulation for a LIN bus via Serial.
             For an explanation of the LIN bus and protocol e.g. see https://en.wikipedia.org/wiki/Local_Interconnect_Network
   \author   Georg Icking-Konert
-  \date     2020-03-14
-  \version  0.1
 */
 
 // include files
@@ -13,7 +11,7 @@
 #include "LIN_master0.h"
 
 // only compile if controller supports Serial
-#if defined(HAVE_HWSERIAL0) || defined(SERIAL_PORT_HARDWARE)
+#if defined(HAVE_HWSERIAL0) || defined(SERIAL_PORT_HARDWARE) || (SOC_UART_NUM > 0)
 
 
 /// instance of LIN master via Serial

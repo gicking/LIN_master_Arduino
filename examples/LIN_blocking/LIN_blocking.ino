@@ -2,9 +2,8 @@
   \file     LIN_blocking.ino
   \example  LIN_blocking.ino
   \brief    Simple LIN master node emulation with blocking operation
-  \details  Simple emulation of a LIN master node via Serial3 (+ LIN transceiver) for DAI MRA2 FED1.0 with blocking operation. Status is printed periodically.
+  \details  Simple emulation of a LIN master node via Serial1 (+ LIN transceiver) for DAI MRA2 FED1.0 with blocking operation. Status is printed periodically.
   \author   Georg Icking-Konert
-  \date     2020-03-15
 
   \note 
   The sender state machine relies on reading back its 1-wire echo. 
@@ -12,7 +11,7 @@
 */
 
 // include files                                                                       
-#include "LIN_master3.h"      // muDuino LIN via Serial3
+#include "LIN_master1.h"
 
 // pin to demonstrate background operation
 #define PIN_TOGGLE    30
@@ -30,7 +29,7 @@ void setup(void)
   Serial.begin(115200); while(!Serial);
   
   // initialize LIN master (blocking operation)
-  LIN_master3.begin(19200, LIN_V2, false);
+  LIN_master1.begin(19200, LIN_V2, false);
 
 } // setup()
 
@@ -55,7 +54,7 @@ void loop(void)
       count++;
   
       // dummy master request (blocking)
-      LIN_master3.sendMasterRequest(0x3B, 2, Tx);
+      LIN_master1.sendMasterRequest(0x3B, 2, Tx);
       
     } // count == 0
   
@@ -64,11 +63,11 @@ void loop(void)
       count=0;
       
       // receive slave response (blocking)
-      LIN_master3.receiveSlaveResponse(0x1B, 8, Rx);
+      LIN_master1.receiveSlaveResponse(0x1B, 8, Rx);
   
       // print status and data
       Serial.print(millis()); Serial.println("ms");
-      Serial.print("error: "); Serial.println(LIN_master3.error);
+      Serial.print("error: "); Serial.println(LIN_master1.error);
       Serial.println("data:");
       for (uint8_t i=0; i<8; i++)
       {
@@ -77,7 +76,7 @@ void loop(void)
       Serial.println();
       
       // clear pending error and flag for received data
-      LIN_master3.error = LIN_SUCCESS;
+      LIN_master1.error = LIN_SUCCESS;
       
     } // count == 1
 

@@ -438,7 +438,7 @@ void LIN_Master::handlerSend(void)
 
   // wait until break received (with timeout) before changing baudrate
   uint32_t tStart = micros();
-  while ((!(pSerial->available())) && ((micros() - tStart) < 5000));
+  while ((!(pSerial->available())) && ((micros() - tStart) < 1000));
 
 
   // assert no timeout
@@ -549,7 +549,7 @@ void LIN_Master::handlerReceive(void)
 
   // wait until break received (with timeout) before changing baudrate
   uint32_t tStart = micros();
-  while ((pSerial->available() != lenRx-1) && ((micros() - tStart) < 5000));
+  while ((pSerial->available() != lenRx-1) && ((micros() - tStart) < 1000));
 
 
   // check if data was received (-1 because sync break already read)

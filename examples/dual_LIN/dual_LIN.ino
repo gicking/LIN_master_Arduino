@@ -11,8 +11,8 @@
 */
 
 // LIN master library
-#include "LIN_master0.h"
 #include "LIN_master1.h"
+#include "LIN_master2.h"
 
 // task scheduler library. Either "Task Scheduler" library (AVR, SAM), or Ticker (ESP32, ESP8266)
 #if defined(__AVR__) || defined(__SAM3X8E__)

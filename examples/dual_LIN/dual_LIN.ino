@@ -43,8 +43,8 @@ void setup(void)
   Serial.begin(115200); while(!Serial);
 
   // initialize LIN master (background operation)
-  LIN_master0.begin(19200, LIN_V2, true);
-  LIN_master1.begin(9600, LIN_V1, true);
+  LIN_master1.begin(19200, LIN_V2, true);
+  LIN_master2.begin(9600, LIN_V1, true);
   
   // init task scheduler (also required for LIN master emulation!)
   #if defined(__AVR__) || defined(__SAM3X8E__)

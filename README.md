@@ -21,3 +21,4 @@ Notes:
   - The sender state machine relies on reading back its 1-wire echo. If no LIN or K-Line transceiver is used, connect Rx&Tx (only 1 device!) 
 
 Have fun!, Georg
+ 

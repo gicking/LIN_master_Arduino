@@ -8,9 +8,12 @@
   \note 
   The sender state machine relies on reading back its 1-wire echo. 
   If no LIN or K-Line transceiver is used, connect Rx&Tx (only 1 device!) 
+
+  \note
+  As Serial(0) is generally used for USB/console, boards with only 1 Serial interface, e.g. Uno, may not work due to conflict between USB and LIN.
 */
 
-// LIN master library
+// include LIN master library
 #include "LIN_master1.h"
 
 // task scheduler library. Either "Task Scheduler" library (AVR, SAM), or Ticker (ESP32, ESP8266)

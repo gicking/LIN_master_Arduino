@@ -8,9 +8,12 @@
   \note 
   The sender state machine relies on reading back its 1-wire echo. 
   If no LIN or K-Line transceiver is used, connect Rx&Tx (only 1 device!) 
+
+  \note
+  As Serial(0) is generally used for USB/console, boards with 2 Serial interfaces, may not work due to conflict between USB and LIN.
 */
 
-// LIN master library
+// include LIN master library
 #include "LIN_master1.h"
 #include "LIN_master2.h"
 

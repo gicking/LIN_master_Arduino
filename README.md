@@ -1,6 +1,11 @@
 LIN Master Node Emulation
 =========================
 
+
+## This library is no longer actively maintained. It is replaced by [LIN_master_portable_Arduino]( https://github.com/gicking/LIN_master_portable_Arduino), which adds more boards and support for [SoftwareSerial](https://docs.arduino.cc/learn/built-in-libraries/software-serial/).
+
+
+
 This library implements a Local Interconnect Master node emulation. For an explanation of the LIN bus and protocol e.g. see https://en.wikipedia.org/wiki/Local_Interconnect_Network.
 
 Supported functionality:

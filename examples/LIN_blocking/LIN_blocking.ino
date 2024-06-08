@@ -10,8 +10,9 @@
   If no LIN or K-Line transceiver is used, connect Rx&Tx (only 1 device!) 
 */
 
-// include files                                                                       
+// include files
 #include "LIN_master1.h"
+#include "LIN_master2.h"
 
 // pin to demonstrate background operation
 #define PIN_TOGGLE    30

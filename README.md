@@ -2,7 +2,7 @@ LIN Master Node Emulation
 =========================
 
 
-## This library is no longer actively maintained. It is replaced by [LIN_master_portable_Arduino]( https://github.com/gicking/LIN_master_portable_Arduino), which adds more boards and support for [SoftwareSerial](https://docs.arduino.cc/learn/built-in-libraries/software-serial/).
+## This library is no longer actively maintained. It is replaced by [LIN_master_portable_Arduino](https://github.com/gicking/LIN_master_portable_Arduino), which adds more boards and support for [SoftwareSerial](https://docs.arduino.cc/learn/built-in-libraries/software-serial/).
 
 
 
